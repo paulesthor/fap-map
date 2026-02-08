@@ -68,6 +68,13 @@ export default function CameraCapture() {
         }
     }, [stream])
 
+    // Attach stream to video element when it becomes available
+    useEffect(() => {
+        if (videoRef.current && stream) {
+            videoRef.current.srcObject = stream
+        }
+    }, [stream, step]) // Re-run when step changes (video mounts) or stream updates
+
     // Cleanup stream on unmount
     useEffect(() => {
         // Attempt to get location on mount
