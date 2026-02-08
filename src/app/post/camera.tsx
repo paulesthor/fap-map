@@ -101,10 +101,16 @@ export default function CameraCapture() {
             setIsSessionActive(true)
             setStep('timer')
 
-            // Calculate initial elapsed
-            setElapsedTime(Math.floor((Date.now() - start) / 1000))
+            setSessionStartTime(start)
         }
     }, [])
+
+    // Auto-start camera when entering capture steps
+    useEffect(() => {
+        if ((step === 'capture-back' || step === 'capture-front') && !stream && !cameraError) {
+            startCamera(step === 'capture-back' ? 'environment' : 'user')
+        }
+    }, [step, stream, cameraError, startCamera])
 
     // Timer Interval Effect
     useEffect(() => {
