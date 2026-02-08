@@ -148,8 +148,24 @@ export default function CameraCapture() {
         const video = videoRef.current
         const canvas = canvasRef.current
 
-        canvas.width = video.videoWidth
-        canvas.height = video.videoHeight
+        const MAX_DIMENSION = 1280
+        let width = video.videoWidth
+        let height = video.videoHeight
+
+        if (width > height) {
+            if (width > MAX_DIMENSION) {
+                height = height * (MAX_DIMENSION / width)
+                width = MAX_DIMENSION
+            }
+        } else {
+            if (height > MAX_DIMENSION) {
+                width = width * (MAX_DIMENSION / height)
+                height = MAX_DIMENSION
+            }
+        }
+
+        canvas.width = width
+        canvas.height = height
 
         const ctx = canvas.getContext('2d')
         if (ctx) {
@@ -157,7 +173,7 @@ export default function CameraCapture() {
                 ctx.translate(canvas.width, 0)
                 ctx.scale(-1, 1)
             }
-            ctx.drawImage(video, 0, 0)
+            ctx.drawImage(video, 0, 0, width, height)
 
             canvas.toBlob((blob) => {
                 if (!blob) return
