@@ -105,13 +105,6 @@ export default function CameraCapture() {
         }
     }, [])
 
-    // Auto-start camera when entering capture steps
-    useEffect(() => {
-        if ((step === 'capture-back' || step === 'capture-front') && !stream && !cameraError) {
-            startCamera(step === 'capture-back' ? 'environment' : 'user')
-        }
-    }, [step, stream, cameraError, startCamera])
-
     // Timer Interval Effect
     useEffect(() => {
         let interval: NodeJS.Timeout
@@ -135,6 +128,12 @@ export default function CameraCapture() {
         setIsSessionActive(false)
         localStorage.removeItem('fapmap_session_start')
         setStep('capture-back')
+        startCamera('environment')
+    }
+
+    const handleSkipTimer = () => {
+        setStep('capture-back')
+        startCamera('environment')
     }
 
     const formatTime = (seconds: number) => {
@@ -337,7 +336,7 @@ export default function CameraCapture() {
                         {/* Emergency bypass for testing or non-timed posts */}
                         {!isSessionActive && (
                             <button
-                                onClick={() => setStep('capture-back')}
+                                onClick={handleSkipTimer}
                                 className="w-full py-3 text-gray-500 text-sm hover:text-white transition-colors"
                             >
                                 Passer le chrono (Poster direct)
