@@ -16,10 +16,7 @@ interface PostLocation {
         username: string
         avatar_url: string | null
     }
-    user: {
-        username: string
-        avatar_url: string | null
-    }
+
     rating_average: number | null
     back_image_url: string
 }
