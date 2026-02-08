@@ -119,11 +119,44 @@ export default function MapView({ posts, userProfile }: { posts: PostLocation[],
 
 
 
+    const handleLocate = () => {
+        if (!navigator.geolocation) {
+            setGeoError("La géolocalisation n'est pas supportée par votre navigateur.")
+            return
+        }
+
+        setGeoError(null)
+        // Show loading state could be nice here
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const newLoc: [number, number] = [position.coords.latitude, position.coords.longitude]
+                setUserLocation(newLoc)
+                setMapCenter(newLoc) // Update center state
+            },
+            (err) => {
+                console.warn('Manual geolocation failed:', err.message)
+                let msg = "Impossible de vous localiser."
+                if (err.code === err.PERMISSION_DENIED) msg = "Permission refusée. Vérifiez vos réglages."
+                if (err.code === err.TIMEOUT) msg = "Délai d'attente dépassé. Réessayez dehors."
+                setGeoError(msg)
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        )
+    }
+
     return (
         <div className="w-full h-full relative font-sans">
             {geoError && (
-                <div className="absolute top-24 left-4 right-4 z-[1000] bg-red-500/90 text-white p-3 rounded-lg text-sm text-center shadow-lg backdrop-blur">
-                    {geoError}
+                <div className="absolute top-24 left-4 right-4 z-[1000] animate-in slide-in-from-top-2 fade-in duration-300">
+                    <div className="bg-red-500/90 text-white p-3 rounded-lg text-sm text-center shadow-lg backdrop-blur flex items-center justify-between gap-2">
+                        <span>{geoError}</span>
+                        <button onClick={() => setGeoError(null)} className="text-white/80 hover:text-white font-bold px-2">✕</button>
+                    </div>
                 </div>
             )}
 
@@ -139,6 +172,7 @@ export default function MapView({ posts, userProfile }: { posts: PostLocation[],
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" // Dark Mode Map
                 />
 
+                <MapController center={mapCenter} />
                 <MapBoundsController bounds={mapBounds} />
 
                 {/* User Marker (Custom Avatar) */}
@@ -198,18 +232,9 @@ export default function MapView({ posts, userProfile }: { posts: PostLocation[],
             {/* Floating Action Buttons */}
             <div className="absolute bottom-24 right-4 flex flex-col gap-3 z-[1000]">
                 <button
-                    onClick={() => {
-                        if (userLocation) {
-                            // Logic to center on user handled by bounds update potentially, 
-                            // or simpler: just reload to re-acquire if stuck.
-                            // ideally we should have a ref to map to flyTo.
-                            // For now, let's just reload to 'refresh' GPS if it was stuck
-                            window.location.reload()
-                        } else {
-                            window.location.reload()
-                        }
-                    }}
-                    className="p-4 bg-cta text-white rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all text-2xl flex items-center justify-center"
+                    onClick={handleLocate}
+                    className="p-4 bg-cta/80 backdrop-blur text-white rounded-full shadow-[0_0_15px_rgba(244,63,94,0.4)] hover:scale-105 active:scale-95 transition-all text-2xl flex items-center justify-center border border-white/20"
+                    title="Locate Me"
                 >
                     📍
                 </button>
