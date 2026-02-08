@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 
 export async function createPost(formData: FormData) {
+    console.log('--- START createPost ---')
     const supabase = await createClient()
 
     const {
@@ -11,8 +12,10 @@ export async function createPost(formData: FormData) {
     } = await supabase.auth.getUser()
 
     if (!user) {
+        console.error('CreatePost: Not authenticated')
         return { error: 'Not authenticated' }
     }
+    console.log('CreatePost: User authenticated', user.id)
 
     const backImage = formData.get('backImage') as File
     const frontImage = formData.get('frontImage') as File
@@ -37,22 +40,27 @@ export async function createPost(formData: FormData) {
     const rating_average = (r_isolation + r_location + r_surface + r_brightness) / 4
 
     if (!backImage || !frontImage) {
+        console.error('CreatePost: Missing images')
         return { error: 'Both images are required' }
     }
+
+    console.log(`CreatePost: Photos received. Back: ${backImage.size} bytes, Front: ${frontImage.size} bytes`)
 
     // Helper to upload file
     const uploadFile = async (file: File, prefix: string) => {
         const fileExt = file.name.split('.').pop()
         const fileName = `${user.id}/${prefix}_${Date.now()}.${fileExt}`
 
+        console.log(`CreatePost: Uploading ${prefix} image...`)
         const { error: uploadError } = await supabase.storage
             .from('posts')
             .upload(fileName, file)
 
         if (uploadError) {
-            console.error('Upload error:', uploadError)
+            console.error(`CreatePost: Upload error for ${prefix}:`, uploadError)
             throw new Error('Failed to upload image')
         }
+        console.log(`CreatePost: Upload success for ${prefix}`)
 
         // Get public URL
         const { data: { publicUrl } } = supabase.storage
@@ -74,6 +82,7 @@ export async function createPost(formData: FormData) {
             displayLocation = `${lat.toFixed(4)}, ${lng.toFixed(4)}`
         }
 
+        console.log('CreatePost: Inserting into DB...')
         const { error: dbError } = await supabase.from('posts').insert({
             user_id: user.id,
             back_image_url: backImageUrl,
@@ -91,14 +100,16 @@ export async function createPost(formData: FormData) {
         })
 
         if (dbError) {
-            console.error('DB Error:', dbError)
+            console.error('CreatePost: DB Error:', dbError)
             return { error: 'Failed to save post' }
         }
+        console.log('CreatePost: Insert success')
 
     } catch (err) {
-        console.error(err)
+        console.error('CreatePost: Exception:', err)
         return { error: 'Something went wrong during upload' }
     }
 
+    console.log('--- END createPost ---')
     return { success: true }
 }
