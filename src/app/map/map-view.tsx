@@ -81,28 +81,17 @@ export default function MapView({ posts, userProfile }: { posts: PostLocation[],
         }
 
         const error = (err: GeolocationPositionError) => {
-            // Log for debugging
             console.warn('Geolocation failed:', err.message)
-
-            // If we have posts, we don't need to annoy user with a red error banner
-            // The map will just fitBounds to the posts
-            if (posts.length > 0) {
-                setGeoError(null)
-            } else {
-                // Only show error if we have NOTHING to show (no posts, no user loc)
-                if (err.code === err.PERMISSION_DENIED) {
-                    setGeoError('Localisation non disponible. (Activez le GPS ou ajoutez des posts)')
-                }
-            }
+            // Silent fail on load - don't annoy user unless they asked for it
         }
 
         const options = {
-            enableHighAccuracy: false, // Less aggressive for initial load
+            enableHighAccuracy: false,
             timeout: 15000,
             maximumAge: 0
         }
 
-        // Try to get position
+        // Try to get position silently
         navigator.geolocation.getCurrentPosition(success, error, options)
     }, [posts.length])
 
@@ -126,19 +115,23 @@ export default function MapView({ posts, userProfile }: { posts: PostLocation[],
         }
 
         setGeoError(null)
-        // Show loading state could be nice here
 
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const newLoc: [number, number] = [position.coords.latitude, position.coords.longitude]
                 setUserLocation(newLoc)
-                setMapCenter(newLoc) // Update center state
+                setMapCenter(newLoc)
             },
             (err) => {
                 console.warn('Manual geolocation failed:', err.message)
                 let msg = "Impossible de vous localiser."
-                if (err.code === err.PERMISSION_DENIED) msg = "Permission refusée. Vérifiez vos réglages."
+
+                // Specific iOS helpful message
+                if (err.code === err.PERMISSION_DENIED) {
+                    msg = "⚠️ Accès refusé. Sur iPhone : Réglages > Confidentialité > Service de localisation > Safari > Choisir 'Lorsque l'app est active'."
+                }
                 if (err.code === err.TIMEOUT) msg = "Délai d'attente dépassé. Réessayez dehors."
+
                 setGeoError(msg)
             },
             {
