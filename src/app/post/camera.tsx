@@ -254,9 +254,9 @@ export default function CameraCapture() {
                 alert(`Erreur lors de l'envoi : ${result.error}`)
                 setLoading(false)
             } else if (result && 'success' in result && result.success) {
-                // Success! Redirect.
-                router.push('/')
-                router.refresh() // Ensure feed updates
+                // Success! Force reload.
+                alert("Post envoyé avec succès ! 🚀")
+                window.location.href = '/'
             }
 
         } catch (error) {
