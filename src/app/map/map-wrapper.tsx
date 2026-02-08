@@ -12,6 +12,7 @@ interface PostLocation {
     id: string
     lat: number
     lng: number
+    user_id: string
     user: {
         username: string
         avatar_url: string | null

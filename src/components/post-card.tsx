@@ -9,6 +9,7 @@ import CommentSheet from './comment-sheet'
 interface PostProps {
     post: {
         id: string
+        user_id: string
         created_at: string
         location: string | null
         caption: string | null
@@ -109,7 +110,7 @@ export default function PostCard({ post }: PostProps) {
                     {/* User Info */}
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <Link href={`/profile/${post.user.username || ''}`} className="w-10 h-10 rounded-full border-2 border-cta overflow-hidden bg-surface relative">
+                            <Link href={`/profile/${post.user_id}`} className="w-10 h-10 rounded-full border-2 border-cta overflow-hidden bg-surface relative">
                                 {post.user.avatar_url ? (
                                     <Image src={post.user.avatar_url} alt={post.user.username || 'User'} fill className="object-cover" />
                                 ) : (

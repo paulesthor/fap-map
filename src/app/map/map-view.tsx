@@ -19,6 +19,7 @@ interface PostLocation {
     id: string
     lat: number
     lng: number
+    user_id: string
     user: {
         username: string
         avatar_url: string | null
@@ -209,7 +210,9 @@ export default function MapView({ posts, userProfile }: { posts: PostLocation[],
                             })}
                         >
                             <Popup className="custom-popup">
-                                <div className="font-heading text-lg text-center mb-1">{username}</div>
+                                <a href={`/profile/${post.user_id}`} className="font-heading text-lg text-center mb-1 block hover:underline hover:text-cta transition-colors">
+                                    {username}
+                                </a>
                                 {post.rating_average && (
                                     <div className="text-center bg-yellow-400/10 text-yellow-400 font-bold text-xs uppercase tracking-wider mb-2 py-0.5 rounded">★ {post.rating_average} Rating</div>
                                 )}

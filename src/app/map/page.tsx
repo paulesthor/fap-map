@@ -22,6 +22,7 @@ export default async function MapPage() {
       lng,
       rating_average,
       back_image_url,
+      user_id,
       user:profiles(username, avatar_url)
     `)
         .not('lat', 'is', null)
@@ -32,6 +33,7 @@ export default async function MapPage() {
         id: string
         lat: number
         lng: number
+        user_id: string
         user: {
             username: string
             avatar_url: string | null

@@ -24,5 +24,5 @@ export default async function ProfilePage() {
     const posts = postsData.data || []
     const commentCount = commentsData.count || 0
 
-    return <ProfileView profile={profile} posts={posts} commentCount={commentCount} />
+    return <ProfileView profile={profile} posts={posts} commentCount={commentCount} isOwnProfile={true} />
 }

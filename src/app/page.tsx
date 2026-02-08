@@ -41,6 +41,7 @@ export default async function Home() {
       caption,
       location,
       created_at,
+      user_id,
       user:profiles(username, avatar_url),
       rating_isolation,
       rating_location,
@@ -54,6 +55,7 @@ export default async function Home() {
 
   interface Post {
     id: string
+    user_id: string
     back_image_url: string
     front_image_url: string
     caption: string | null

@@ -11,9 +11,10 @@ interface ProfileViewProps {
     profile: any
     posts: any[]
     commentCount: number
+    isOwnProfile?: boolean
 }
 
-export default function ProfileView({ profile, posts, commentCount }: ProfileViewProps) {
+export default function ProfileView({ profile, posts, commentCount, isOwnProfile = false }: ProfileViewProps) {
     const [isEditing, setIsEditing] = useState(false)
 
     // Stats
@@ -56,13 +57,15 @@ export default function ProfileView({ profile, posts, commentCount }: ProfileVie
                 </div>
 
                 {/* Edit Toggle */}
-                <button
-                    onClick={() => setIsEditing(!isEditing)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-xs font-bold uppercase tracking-wider"
-                >
-                    <Edit3 size={12} />
-                    {isEditing ? 'Fermer' : 'Modifier'}
-                </button>
+                {isOwnProfile && (
+                    <button
+                        onClick={() => setIsEditing(!isEditing)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-xs font-bold uppercase tracking-wider"
+                    >
+                        <Edit3 size={12} />
+                        {isEditing ? 'Fermer' : 'Modifier'}
+                    </button>
+                )}
             </div>
 
             {/* 2. Stats Row (Clean Utility Look) */}
@@ -94,14 +97,16 @@ export default function ProfileView({ profile, posts, commentCount }: ProfileVie
             )}
 
             {/* 5. Additional / Logout */}
-            <div className="mt-12 px-6 flex justify-center">
-                <form action={signOut}>
-                    <button className="flex items-center gap-2 text-red-500 hover:text-red-400 text-sm font-bold uppercase tracking-widest transition-colors opacity-60 hover:opacity-100">
-                        <LogOut size={16} />
-                        Déconnexion
-                    </button>
-                </form>
-            </div>
+            {isOwnProfile && (
+                <div className="mt-12 px-6 flex justify-center">
+                    <form action={signOut}>
+                        <button className="flex items-center gap-2 text-red-500 hover:text-red-400 text-sm font-bold uppercase tracking-widest transition-colors opacity-60 hover:opacity-100">
+                            <LogOut size={16} />
+                            Déconnexion
+                        </button>
+                    </form>
+                </div>
+            )}
         </div>
     )
 }
