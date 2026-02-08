@@ -100,5 +100,5 @@ export async function createPost(formData: FormData) {
         return { error: 'Something went wrong during upload' }
     }
 
-    redirect('/')
+    return { success: true }
 }

@@ -202,28 +202,48 @@ export default function CameraCapture() {
     }
 
     const handleSubmit = async () => {
-        if (!backPhoto || !frontPhoto) return
+        if (!backPhoto || !frontPhoto) {
+            alert("Erreur : Il manque une photo !")
+            return
+        }
         setLoading(true)
 
-        const formData = new FormData()
-        formData.append('backImage', backPhoto, 'back.jpg')
-        formData.append('frontImage', frontPhoto, 'front.jpg')
-        formData.append('caption', '')
+        try {
+            const formData = new FormData()
+            formData.append('backImage', backPhoto, 'back.jpg')
+            formData.append('frontImage', frontPhoto, 'front.jpg')
+            formData.append('caption', '')
 
-        if (location) {
-            formData.append('lat', location.lat.toString())
-            formData.append('lng', location.lng.toString())
+            if (location) {
+                formData.append('lat', location.lat.toString())
+                formData.append('lng', location.lng.toString())
+            }
+            formData.append('customLocation', customLocation)
+            formData.append('duration', elapsedTime.toString())
+
+            // Add ratings
+            formData.append('rating_isolation', ratings.isolation.toString())
+            formData.append('rating_location', ratings.location.toString())
+            formData.append('rating_surface', ratings.surface.toString())
+            formData.append('rating_brightness', ratings.brightness.toString())
+
+            const result = await createPost(formData)
+
+            // Handle server action error response
+            if (result && 'error' in result) {
+                alert(`Erreur lors de l'envoi : ${result.error}`)
+                setLoading(false)
+            } else if (result && 'success' in result && result.success) {
+                // Success! Redirect.
+                router.push('/')
+                router.refresh() // Ensure feed updates
+            }
+
+        } catch (error) {
+            console.error(error)
+            alert("Erreur inattendue lors de l'envoi.")
+            setLoading(false)
         }
-        formData.append('customLocation', customLocation)
-        formData.append('duration', elapsedTime.toString())
-
-        // Add ratings
-        formData.append('rating_isolation', ratings.isolation.toString())
-        formData.append('rating_location', ratings.location.toString())
-        formData.append('rating_surface', ratings.surface.toString())
-        formData.append('rating_brightness', ratings.brightness.toString())
-
-        await createPost(formData)
     }
 
     const renderRatingSlider = (label: string, value: number, field: keyof typeof ratings) => (
