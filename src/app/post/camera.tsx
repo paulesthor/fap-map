@@ -12,6 +12,7 @@ export default function CameraCapture() {
 
     const [stream, setStream] = useState<MediaStream | null>(null)
     const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment')
+    const [cameraError, setCameraError] = useState<string | null>(null)
 
     const [backPhoto, setBackPhoto] = useState<Blob | null>(null)
     const [frontPhoto, setFrontPhoto] = useState<Blob | null>(null)
@@ -45,6 +46,7 @@ export default function CameraCapture() {
         if (stream) {
             stream.getTracks().forEach(track => track.stop())
         }
+        setCameraError(null)
 
         try {
             const newStream = await navigator.mediaDevices.getUserMedia({
@@ -61,6 +63,8 @@ export default function CameraCapture() {
             }
         } catch (err) {
             console.error('Camera error:', err)
+            // @ts-ignore
+            setCameraError(err.message || "Impossible d'accéder à la caméra")
         }
     }, [stream])
 
@@ -331,9 +335,17 @@ export default function CameraCapture() {
                                 className={`w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
                             />
                         ) : (
-                            <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-4 items-center text-center p-4">
+                                {cameraError ? (
+                                    <div className="bg-red-500/20 border border-red-500 text-red-100 p-4 rounded-lg mb-4">
+                                        <p className="font-bold">Erreur Caméra</p>
+                                        <p className="text-sm">{cameraError}</p>
+                                        <p className="text-xs mt-2 text-gray-400">Vérifiez les permissions dans vos réglages.</p>
+                                    </div>
+                                ) : null}
+
                                 <button onClick={handleStart} className="bg-white text-black px-6 py-3 rounded-full font-bold">
-                                    Ouvrir la Caméra
+                                    {cameraError ? 'Réessayer' : 'Ouvrir la Caméra'}
                                 </button>
                                 <span className="text-gray-500 text-sm font-center">OU</span>
                                 <button onClick={triggerFileUpload} className="bg-gray-800 text-white px-6 py-3 rounded-full font-bold border border-gray-600">
